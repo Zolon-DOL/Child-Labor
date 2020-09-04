@@ -8,13 +8,14 @@
 
 import UIKit
 
-class GoodsTableViewController: UITableViewController, UISearchBarDelegate {
+class GoodsTableViewController: UITableViewController, UISearchBarDelegate, UITextFieldDelegate {
     
     var state = 0
     
     @IBOutlet weak var goodsCount: UILabel!
     var goodsXML = SWXMLHash.parse("<xml></xml>")
     
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
     
     
     
@@ -86,8 +87,22 @@ class GoodsTableViewController: UITableViewController, UISearchBarDelegate {
         othGoodsAll = othGoods
         
         self.searchBarFilter.delegate = self
+        self.searchBarFilter.text = "Filter Goods"
+        let textFieldInsideSearchBar = searchBarFilter.value(forKey: "searchField") as? UITextField
+        if #available(iOS 12.0, *) {
+        if (self.traitCollection.userInterfaceStyle == .dark) {
+           textFieldInsideSearchBar?.backgroundColor = UIColor.white
+           textFieldInsideSearchBar?.textColor = UIColor.black
+            } else {
+            textFieldInsideSearchBar?.textColor = UIColor.black
+            }
+        }
         
-        
+        self.changeSegmentControlColorWithMode()
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.searchBarFilter.text = ""
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -196,7 +211,9 @@ class GoodsTableViewController: UITableViewController, UISearchBarDelegate {
 
 
         cell.imageView?.image = UIImage(named: "icons_" + goodName.replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: " ", with: "_") + "-33")
-        
+        let chevron = UIImage(named: "arrow.png")
+        cell.accessoryType = .disclosureIndicator
+        cell.accessoryView = UIImageView(image: chevron)
         if #available(iOS 13.0, *) {
 //            cell.imageView?.backgroundColor = .systemOrange
             cell.imageView?.backgroundColor = .white
@@ -221,6 +238,26 @@ class GoodsTableViewController: UITableViewController, UISearchBarDelegate {
         self.tableView.reloadData()
     }
     
+    func changeSegmentControlColorWithMode() {
+        if #available(iOS 13.0, *) {
+        if (self.traitCollection.userInterfaceStyle == .dark) {
+           segmentedControl.backgroundColor = UIColor.white
+           segmentedControl.selectedSegmentTintColor = UIColor.black
+           let titleTextAttribute1 = [NSAttributedString.Key.foregroundColor: UIColor.black]
+           let titleTextAttribute2 = [NSAttributedString.Key.foregroundColor: UIColor.white]
+           segmentedControl.setTitleTextAttributes(titleTextAttribute1, for:.normal)
+           segmentedControl.setTitleTextAttributes(titleTextAttribute2, for:.selected)
+            } else {
+            segmentedControl.backgroundColor = UIColor.black
+            segmentedControl.selectedSegmentTintColor = UIColor.white
+            let titleTextAttribute1 = [NSAttributedString.Key.foregroundColor: UIColor.white]
+            let titleTextAttribute2 = [NSAttributedString.Key.foregroundColor: UIColor.black]
+            segmentedControl.setTitleTextAttributes(titleTextAttribute1, for:.normal)
+            segmentedControl.setTitleTextAttributes(titleTextAttribute2, for:.selected)
+            }
+        }
+         
+    }
     
     func getGoodsCount()->Int{
         var goodsCount = 0
